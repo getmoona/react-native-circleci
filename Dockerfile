@@ -8,6 +8,7 @@ RUN apt-get install -y openjdk-8-jdk expect -t jessie-backports
 ENV TERM dumb
 
 # Android SDK
+RUN apt-get install -y gcc-multilib lib32z1 lib32stdc++6
 # from https://hub.docker.com/r/webratio/android-sdk/~/dockerfile/
 ENV ANDROID_SDK_FILENAME android-sdk_r23.0.2-linux.tgz
 ENV ANDROID_SDK_URL http://dl.google.com/android/${ANDROID_SDK_FILENAME}
