@@ -1,25 +1,34 @@
 FROM node:latest
 
-# Java 8
-RUN echo "deb http://ftp.fr.debian.org/debian jessie-backports main" >>/etc/apt/sources.list
-RUN apt-get update
-RUN apt-get install -y openjdk-8-jdk expect -t jessie-backports
 # Workaround for "Could not open terminal for stdout: $TERM not set"
 ENV TERM dumb
 
+# Yarn
+RUN npm install -g yarn
+
+# Java 8
+RUN echo 'deb http://http.debian.net/debian jessie-backports main' >> /etc/apt/sources.list
+RUN apt-get update -q && apt-get install -qy -t jessie-backports openjdk-8-jdk expect
+
+# Android SDK dependencies
+RUN apt-get install -y gcc-multilib lib32z1 lib32stdc++6 wget unzip
+
 # Android SDK
-RUN apt-get install -y gcc-multilib lib32z1 lib32stdc++6
-# from https://hub.docker.com/r/webratio/android-sdk/~/dockerfile/
-ENV ANDROID_SDK_FILENAME android-sdk_r23.0.2-linux.tgz
-ENV ANDROID_SDK_URL http://dl.google.com/android/${ANDROID_SDK_FILENAME}
-ENV ANDROID_API_LEVELS android-23
-ENV ANDROID_BUILD_TOOLS_VERSION 23.0.2
+# Found the link on https://developer.android.com/studio/index.html#command-tools
+# Based on https://hub.docker.com/r/webratio/android-sdk/~/dockerfile/
+ENV ANDROID_SDK_FILENAME sdk-tools-linux-3859397.zip
+ENV ANDROID_SDK_URL http://dl.google.com/android/repository/${ANDROID_SDK_FILENAME}
+ENV ANDROID_API_LEVELS android-26
+ENV ANDROID_BUILD_TOOLS_VERSION 26.0.3
 ENV ANDROID_HOME /opt/android-sdk-linux
-ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+
 RUN cd /opt && \
     wget -q ${ANDROID_SDK_URL} && \
-    tar -xzf ${ANDROID_SDK_FILENAME} && \
-    rm ${ANDROID_SDK_FILENAME} && \
-    echo y | android update sdk --no-ui -a --filter tools,platform-tools,${ANDROID_API_LEVELS},build-tools-${ANDROID_BUILD_TOOLS_VERSION}
-RUN mkdir -p ${ANDROID_HOME}/licenses
-RUN echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" >${ANDROID_HOME}/licenses/android-sdk-license
+    unzip ${ANDROID_SDK_FILENAME} -d ${ANDROID_HOME} && \
+    rm ${ANDROID_SDK_FILENAME}
+
+RUN echo y | android update sdk --no-ui -a --filter tools,platform-tools,${ANDROID_API_LEVELS},build-tools-${ANDROID_BUILD_TOOLS_VERSION}
+
+# Automatically accept licenses
+RUN yes | sdkmanager --licenses
