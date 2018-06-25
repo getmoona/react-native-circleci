@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:10-jessie
 
 # Workaround for "Could not open terminal for stdout: $TERM not set"
 ENV TERM dumb
