@@ -1,7 +1,11 @@
-FROM node:10-jessie
+FROM ruby:2.4.4-jessie
 
 # Workaround for "Could not open terminal for stdout: $TERM not set"
 ENV TERM dumb
+
+# Node 10
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && apt-get update -q && apt-get install -y nodejs
 
 # Yarn
 RUN npm install -g yarn
