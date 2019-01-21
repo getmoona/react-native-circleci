@@ -35,4 +35,5 @@ RUN cd /opt && \
 RUN echo y | android update sdk --no-ui -a --filter tools,platform-tools,${ANDROID_API_LEVELS},build-tools-${ANDROID_BUILD_TOOLS_VERSION}
 
 # Automatically accept licenses
-RUN yes | sdkmanager --licenses
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;${ANDROID_API_LEVELS}"
